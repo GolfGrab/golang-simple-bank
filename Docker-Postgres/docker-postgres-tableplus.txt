@@ -1,0 +1,40 @@
+HOW TO DO THIS STEP
+
+##1## install docker
+  - install docker from https://www.docker.com/products/docker-desktop
+  - if you have a problem try google it first
+  #note# after you install it you can try
+    > docker ps //list all running container
+    > docker images //list all images in your computer
+
+##2## download postgres images
+  - download with this command
+    > docker pull postgres:14-alpine
+  - after finished download you can check by run this command
+    > docker images
+  #note# you can select different version from https://hub.docker.com/_/postgres
+
+##3## start container
+  - start postgres container with this command
+    > docker run --name postgres14 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:14-alpine
+  #note#
+  -you can config on your own by this template
+    > docker run --name <Name of container> -p {port}:{port} -e POSTGRES_USER={username} -e POSTGRES_PASSWORD={password} -d {postgres:your version}
+  - you can check your running container by this command
+    > docker ps
+
+##4## get access to postgres consol
+  - you can get access to postgres consol by this command
+    > docker exec -it postgres14 psql -U root
+  #note#
+  - you can try this command
+    > SELECT now(); //get now date time
+  - you can exit from postgres consol by this command
+    > /q
+  - you can view container logs by this command (you need to exit from postgres consol first)
+    > docker logs <container name or container id> // ex : > docker logs postgres14
+
+##5## use table plus
+  - watch the video to get instruction
+    https://youtu.be/Q9ipbLeqmQo
+

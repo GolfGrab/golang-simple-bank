@@ -8,15 +8,15 @@ CREATE TABLE "accouts" (
 
 CREATE TABLE "entries" (
   "id" bigserial PRIMARY KEY,
-  "accout_id" bigint,
+  "accout_id" bigint NOT NULL,
   "amount" bigint NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "transfers" (
   "id" bigserial PRIMARY KEY,
-  "from_accout_id" bigint,
-  "to_accout_id" bigint,
+  "from_accout_id" bigint NOT NULL,
+  "to_accout_id" bigint NOT NULL,
   "amount" bigint NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
