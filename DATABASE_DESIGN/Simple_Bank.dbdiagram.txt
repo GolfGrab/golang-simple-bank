@@ -1,4 +1,4 @@
-Table accouts as A {
+Table accounts as A {
   id bigserial [pk]
   owner varchar [not null]
   balance bigint [not null]
@@ -11,23 +11,23 @@ Table accouts as A {
 
 Table entries {
   id bigserial [pk]
-  accout_id bigint [ref: > A.id,not null]
+  account_id bigint [ref: > A.id,not null]
   amount bigint [not null, note: 'can be negative or positive']
   created_at timestamptz [not null, default: `now()`]
   Indexes {
-    accout_id
+    account_id
   }
  }
- 
+
 Table transfers {
   id bigserial [pk]
-  from_accout_id bigint [ref: > A.id,not null]
-  to_accout_id bigint [ref: > A.id,not null]
+  from_account_id bigint [ref: > A.id,not null]
+  to_account_id bigint [ref: > A.id,not null]
   amount bigint [not null, note: 'must be positive']
   created_at timestamptz [not null, default: `now()`]
   Indexes {
-  from_accout_id
-  to_accout_id
-  (from_accout_id,to_accout_id)
+  from_account_id
+  to_account_id
+  (from_account_id,to_account_id)
   }
  }
