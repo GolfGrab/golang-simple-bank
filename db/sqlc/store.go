@@ -52,7 +52,7 @@ type TransferTxResult struct {
 	FromAccount Account  `json:"from_account"`
 	ToAccount   Account  `json:"to_account"`
 	FromEntry   Entry    `json:"from_entry"`
-	ToEntry     Entry    `json:"to_entry`
+	ToEntry     Entry    `json:"to_entry"`
 }
 
 // TransferTx performs a money transfer from one account to the other.
