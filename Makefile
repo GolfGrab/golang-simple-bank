@@ -17,6 +17,6 @@ sqlc:
 	docker run --rm -v C:\Users\User\Desktop\Golf\journey-to-complete-backend:/src -w /src kjconroy/sqlc generate
 
 test:
-	go test -v -cover
+	go test ./... -v -cover
 
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc
