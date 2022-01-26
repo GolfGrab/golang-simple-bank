@@ -11,7 +11,7 @@ INSERT INTO transfers (
 SELECT * FROM transfers
 WHERE id = $1 LIMIT 1;
 
--- name: ListTranfers :many
+-- name: ListTransfers :many
 SELECT * FROM transfers
 WHERE
   from_account_id = $1 OR
@@ -20,12 +20,12 @@ ORDER BY id
 LIMIT $3
 OFFSET $4;
 
--- -- name: UpdateTranfer :one
+-- -- name: Updatetransfer :one
 -- UPDATE transfers
 -- SET amount = $2
 -- WHERE id = $1
 -- RETURNING *;
 
--- -- name: DeleteTranfer :exec
+-- -- name: Deletetransfer :exec
 -- DELETE FROM transfers
 -- WHERE id = $1;
