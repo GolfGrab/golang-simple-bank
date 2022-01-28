@@ -25,6 +25,7 @@ type createUserResponse struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
+// createUser function for POST /users
 func (server *Server) createUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
