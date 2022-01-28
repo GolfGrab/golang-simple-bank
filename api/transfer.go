@@ -16,6 +16,7 @@ type createTranferRequest struct {
 	Currency      string `json:"currency" binding:"required,currency"`
 }
 
+// createTransfer function for POST /transfer
 func (server *Server) createTransfer(ctx *gin.Context) {
 	var req createTranferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -46,6 +47,7 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
+// validAccount checks if the account exists and has the same currency
 func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency string) bool {
 	account, err := server.store.GetAccount(ctx, accountID)
 	if err != nil {

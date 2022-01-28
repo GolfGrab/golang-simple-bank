@@ -30,24 +30,23 @@ func (e eqCreateUserParamsMatcher) Matches(x interface{}) bool {
 	if !ok {
 		return false
 	}
-
 	err := util.CheckPassword(e.password, arg.HashedPassword)
 	if err != nil {
 		return false
 	}
-
 	e.arg.HashedPassword = arg.HashedPassword
 	return reflect.DeepEqual(e.arg, arg)
 }
-
 func (e eqCreateUserParamsMatcher) String() string {
 	return fmt.Sprintf("matches arg %v and password %v", e.arg, e.password)
 }
 
+// EqCreateUserParams is a custom gomock matcher
 func EqCreateUserParams(arg db.CreateUserParams, password string) gomock.Matcher {
 	return eqCreateUserParamsMatcher{arg, password}
 }
 
+// TestCreateUserAPI tests the POST /users endpoint
 func TestCreateUserAPI(t *testing.T) {
 	user, password := randomUser(t)
 
@@ -57,6 +56,7 @@ func TestCreateUserAPI(t *testing.T) {
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
+		// case 1: happy case
 		{
 			name: "OK",
 			body: gin.H{
@@ -81,6 +81,7 @@ func TestCreateUserAPI(t *testing.T) {
 				requireBodyMatchUser(t, recorder.Body, user)
 			},
 		},
+		// case 2: have internal server error (can't get user from db)
 		{
 			name: "InternalError",
 			body: gin.H{
@@ -99,6 +100,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
+		// case 3: forbidden (username already exists)
 		{
 			name: "DuplicateUsername",
 			body: gin.H{
@@ -117,6 +119,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
 			},
 		},
+		// case 4: have bad request error (invalid characters in username)
 		{
 			name: "InvalidUsername",
 			body: gin.H{
@@ -134,6 +137,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
+		// case 5: have bad request error (invalid email)
 		{
 			name: "InvalidEmail",
 			body: gin.H{
@@ -151,6 +155,7 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
+		// case 5: have bad request error (password too short)
 		{
 			name: "TooShortPassword",
 			body: gin.H{
@@ -183,7 +188,6 @@ func TestCreateUserAPI(t *testing.T) {
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
 
-			// Marshal body data to JSON
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
@@ -197,6 +201,7 @@ func TestCreateUserAPI(t *testing.T) {
 	}
 }
 
+// randomUser genarate a random User object
 func randomUser(t *testing.T) (user db.User, password string) {
 	password = util.RandomString(6)
 	hashedPassword, err := util.HashPassword(password)
@@ -211,6 +216,7 @@ func randomUser(t *testing.T) (user db.User, password string) {
 	return
 }
 
+// requireBodyMatchUser checks if the response body matches the expected user
 func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)

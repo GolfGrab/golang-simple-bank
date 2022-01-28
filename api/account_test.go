@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestGetAccountAPI tests the GET /accounts/:id endpoint
 func TestGetAccountAPI(t *testing.T) {
 	account := randomAccount()
 
@@ -27,6 +28,7 @@ func TestGetAccountAPI(t *testing.T) {
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, response *httptest.ResponseRecorder)
 	}{
+		// case 1: happy case
 		{
 			name:      "OK",
 			accountID: account.ID,
@@ -41,6 +43,7 @@ func TestGetAccountAPI(t *testing.T) {
 				requiredBodyMatchAccount(t, recorder.Body, account)
 			},
 		},
+		// case 2: have status not found error (account not found)
 		{
 			name:      "NotFound",
 			accountID: account.ID,
@@ -54,6 +57,7 @@ func TestGetAccountAPI(t *testing.T) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 			},
 		},
+		// case 3: have internal server error
 		{
 			name:      "InternalError",
 			accountID: account.ID,
@@ -67,6 +71,7 @@ func TestGetAccountAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
+		// case 4: have bad request error (invalid account id)
 		{
 			name:      "InvalidID",
 			accountID: 0,
@@ -79,8 +84,8 @@ func TestGetAccountAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
-		// TODO: add more test cases
 	}
+
 	for i := range testCase {
 		tc := testCase[i]
 		t.Run(tc.name, func(t *testing.T) {
@@ -90,7 +95,6 @@ func TestGetAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			//  start test server and send request
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
 
@@ -105,6 +109,7 @@ func TestGetAccountAPI(t *testing.T) {
 
 }
 
+// TestCreateAccountAPI tests the POST /accounts endpoint
 func TestCreateAccountAPI(t *testing.T) {
 	account := randomAccount()
 
@@ -114,6 +119,7 @@ func TestCreateAccountAPI(t *testing.T) {
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, response *httptest.ResponseRecorder)
 	}{
+		// case 1: happy case
 		{
 			name: "OK",
 			body: gin.H{
@@ -136,6 +142,7 @@ func TestCreateAccountAPI(t *testing.T) {
 				requiredBodyMatchAccount(t, recorder.Body, account)
 			},
 		},
+		// case 2: have internal server error
 		{
 			name: "InternalError",
 			body: gin.H{
@@ -152,6 +159,7 @@ func TestCreateAccountAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
+		// case 3: have bad request error (invalid currency)
 		{
 			name: "InvalidCurrency",
 			body: gin.H{
@@ -167,7 +175,6 @@ func TestCreateAccountAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
-		// TODO: add more test cases
 	}
 	for i := range testCase {
 		tc := testCase[i]
@@ -178,7 +185,6 @@ func TestCreateAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			//  start test server and send request
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
 
@@ -195,6 +201,7 @@ func TestCreateAccountAPI(t *testing.T) {
 
 }
 
+// TestListAccountsAPI tests the GET /accounts endpoint
 func TestListAccountsAPI(t *testing.T) {
 
 	n := 5
@@ -215,6 +222,7 @@ func TestListAccountsAPI(t *testing.T) {
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
+			// case 1: happy case
 			name: "OK",
 			query: Query{
 				pageID:   1,
@@ -237,6 +245,7 @@ func TestListAccountsAPI(t *testing.T) {
 			},
 		},
 		{
+			// case 2: have internal server error
 			name: "InternalError",
 			query: Query{
 				pageID:   1,
@@ -253,6 +262,7 @@ func TestListAccountsAPI(t *testing.T) {
 			},
 		},
 		{
+			// case 3: have bad request error (invalid pageID)
 			name: "InvalidPageID",
 			query: Query{
 				pageID:   -1,
@@ -268,6 +278,7 @@ func TestListAccountsAPI(t *testing.T) {
 			},
 		},
 		{
+			// case 4: have bad request error (invalid pageSize)
 			name: "InvalidPageSize",
 			query: Query{
 				pageID:   1,
@@ -301,7 +312,6 @@ func TestListAccountsAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
-			// Add query parameters to request URL
 			q := request.URL.Query()
 			q.Add("page_id", fmt.Sprintf("%d", tc.query.pageID))
 			q.Add("page_size", fmt.Sprintf("%d", tc.query.pageSize))
@@ -313,6 +323,7 @@ func TestListAccountsAPI(t *testing.T) {
 	}
 }
 
+// randomAccount genarate a random Account object
 func randomAccount() db.Account {
 	return db.Account{
 		ID:       util.RandomInt(1, 1000),
@@ -322,6 +333,7 @@ func randomAccount() db.Account {
 	}
 }
 
+// requireBodyMatchAccount checks if the response body matches the expected account
 func requiredBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Account) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
@@ -332,6 +344,7 @@ func requiredBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Accou
 	require.Equal(t, account, gotAccount)
 }
 
+// requireBodyMatchAccounts checks if the response body matches the expected account list
 func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []db.Account) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)

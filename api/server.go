@@ -21,6 +21,9 @@ func NewServer(store db.Store) *Server {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
 	}
+
+	// all api endpoints
+
 	router.POST("/users", server.createUser)
 
 	router.POST("/accounts", server.createAccount)
@@ -40,6 +43,7 @@ func (server *Server) Start(address string) error {
 	return server.router.Run(address)
 }
 
+// errorResponse returns a JSON error response.
 func errorResponse(err error) gin.H {
 	return gin.H{
 		"error": err.Error(),

@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestTransferAPI tests the POST /transfer endpoint
 func TestTransferAPI(t *testing.T) {
 	amount := int64(10)
 
@@ -34,6 +35,7 @@ func TestTransferAPI(t *testing.T) {
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
+			// case 1: happy case
 			name: "OK",
 			body: gin.H{
 				"from_account_id": account1.ID,
@@ -56,6 +58,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 			},
 		},
+		// case 2: have status not found error (from account not found)
 		{
 			name: "FromAccountNotFound",
 			body: gin.H{
@@ -73,6 +76,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 			},
 		},
+		// case 3: have status not found error (to account not found)
 		{
 			name: "ToAccountNotFound",
 			body: gin.H{
@@ -90,6 +94,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
 			},
 		},
+		// case 4: have bad request error (from account currency not match to request currency)
 		{
 			name: "FromAccountCurrencyMismatch",
 			body: gin.H{
@@ -107,6 +112,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
+		// case 5: have bad request error (to account currency not match to request currency)
 		{
 			name: "ToAccountCurrencyMismatch",
 			body: gin.H{
@@ -124,6 +130,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
+		// case 6: have bad request error (request currency is not supported)
 		{
 			name: "InvalidCurrency",
 			body: gin.H{
@@ -140,6 +147,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
+		// case 7: have bad request error (tranfer amount is negative)
 		{
 			name: "NegativeAmount",
 			body: gin.H{
@@ -156,6 +164,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
+		// case 8: have internal server error (can't get account from db)
 		{
 			name: "GetAccountError",
 			body: gin.H{
@@ -172,6 +181,7 @@ func TestTransferAPI(t *testing.T) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
+		// case 9: have internal server error (TransferTx function error)
 		{
 			name: "TransferTxError",
 			body: gin.H{
@@ -204,7 +214,6 @@ func TestTransferAPI(t *testing.T) {
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
 
-			// Marshal body data to JSON
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
