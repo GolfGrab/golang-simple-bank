@@ -21,6 +21,8 @@ migratedown1:
 
 sqlc:
 	docker run --rm -v C:\Users\User\Desktop\Golf\journey-to-complete-backend:/src -w /src kjconroy/sqlc generate
+	docker run --rm -v ${pwd}:/src -w /src kjconroy/sqlc generate
+
 
 test:
 	go test ./... -v -cover
